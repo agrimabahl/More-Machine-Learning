@@ -41,6 +41,23 @@ def batchgradient(X,Y):
         print("weights are",w)
     return (w,risk_fn)
 
+def predict(a,Xtrain, Xvalid):
+    pred_values=np.zeros(len(Xvalid))
+    kern=kern_matrix(Xvalid,Xtrain,1)
+    for i in range(len(Xvalid)):
+        Ka=a.dot(kern[i])
+        pred=logistic(Ka)
+        if pred<=0.5:
+            pred_values[i]=0
+        else:
+            pred_values[i]=1
+    return pred_values   
+
+def benchmark(pred_labels, true_labels):
+    errors = pred_labels != true_labels
+    err_rate = sum(errors) / float(len(true_labels))
+    indices = errors.nonzero()
+    return err_rate, indices    
 
 def main():
 	tr = scipy.io.loadmat('spam_data.mat')
@@ -84,9 +101,14 @@ def main():
 	weights,risk_function=batchgradient(Xtrain, Ytrain)
 	Xtest=tr["test_data"]
 
+	pred_val=predict(weights, Xtraining, Xvalid)
+	benchmark(np.array(pred_val),np.array(Yvalid))
+
 
 	x = [i*50 for i in range(len(risk_function3))]
 	plt.plot(x,risk_function3)
 	#plt.ylabel('some numbers')
 	plt.show()
+
+
             
